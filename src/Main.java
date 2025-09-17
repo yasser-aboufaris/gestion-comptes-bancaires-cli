@@ -1,9 +1,13 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import utils.DatabaseConnection;
+import java.sql.Connection;
+
 public class Main {
     public static void main(String[] args) {
-        int a = 1;
-        System.out.println(a);
-
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            System.out.println("✅ Connected3!");
+        } catch (Exception e) {
+            System.out.println("gg");
+            e.printStackTrace();
+        }
     }
 }
