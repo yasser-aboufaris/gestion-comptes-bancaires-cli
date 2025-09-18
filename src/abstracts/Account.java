@@ -1,14 +1,23 @@
 package abstracts;
-public abstract class Account{
-    protected String accountCode;
-    protected int solde;
-    protected Account(){
 
+public abstract class Account {
+    protected String accountCode;
+    protected int ownerId;
+    protected double balance;
+
+    protected Account(String accountCode, int ownerId, double balance) {
+        this.accountCode = accountCode;
+        this.ownerId = ownerId;
+        this.balance = balance;
     }
 
-    protected void Withdaraw(){
+    public String getAccountCode() { return accountCode; }
+    public int getOwnerId() { return ownerId; }
+    public double getBalance() { return balance; }
 
-    };
-    protected void ShowDetails(){}
+    public void updateBalance(double amount) {
+        this.balance += amount;
+    }
 
+    public abstract void showDetails();
 }
