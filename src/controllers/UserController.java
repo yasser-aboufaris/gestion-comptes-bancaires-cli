@@ -20,8 +20,12 @@ public class UserController {
             stmt.setString(2, user.getPassword());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+
                     user.setId(rs.getInt("id")); // set generated id back on the model
                     System.out.println("User registered with id=" + user.getId());
+                    User.setCurrentUser(user.getId());
+//                    int g = User.getCurrentUser();
+//                    System.out.println(g);
                     return true;
                 }
             }
@@ -45,7 +49,9 @@ public class UserController {
                     User user = new User();
                     user.setId(rs.getInt("id"));
                     user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password")); // fine for practice
+                    user.setPassword(rs.getString("password"));
+                    User.setCurrentUser(user.getId());
+
                     return user;
                 }
                 return null;

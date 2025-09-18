@@ -1,12 +1,12 @@
 package abstracts;
-public abstract class Action{
+public abstract class Transfer{
     protected String accountCode;
     protected int amount;
     protected void generateCode(){
 
     }
 
-    protected Action(int amount, String acountCode){}
+    protected Transfer(int amount, String acountCode){}
 
     public String getAccountCode() {
         return accountCode;
