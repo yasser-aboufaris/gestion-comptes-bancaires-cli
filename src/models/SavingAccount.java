@@ -2,14 +2,18 @@ package models;
 
 import abstracts.Account;
 
-public class CheckingAccount extends Account {
+public class SavingAccount extends Account {
 
-    private int negativeLimite;
-    public CheckingAccount(String accountCode, int ownerId, double balance, double interestRate) {
+    private double interestRate;
+
+    public SavingAccount(String accountCode, int ownerId, double balance, double interestRate) {
         super(accountCode, ownerId, balance); // call parent constructor
+        this.interestRate = interestRate;
     }
 
-
+    public double getInterestRate() {
+        return interestRate;
+    }
 
     public void showDetails() {
         System.out.println("=== Saving Account ===");
@@ -18,4 +22,6 @@ public class CheckingAccount extends Account {
         System.out.println("Balance: " + getBalance());
         System.out.println("Interest Rate: " + interestRate + "%");
     }
+
+
 }

@@ -1,18 +1,23 @@
 package abstracts;
-public abstract class Transfer{
+
+public abstract class Transfer {
     protected String accountCode;
     protected int amount;
-    protected void generateCode(){
 
+    protected Transfer(int amount, String accountCode) {
+        this.amount = amount;
+        this.accountCode = accountCode;
     }
 
-    protected Transfer(int amount, String acountCode){}
+    protected void generateCode() {
+    
+    }
 
     public String getAccountCode() {
         return accountCode;
     }
-    public int getAmount(){
+
+    public int getAmount() {
         return amount;
     }
-
 }
