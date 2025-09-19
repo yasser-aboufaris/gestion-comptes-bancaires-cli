@@ -1,26 +1,21 @@
 package controllers;
-import java.sql.*;
-import java.util.List;
-import java.util.ArrayList;
-import abstracts.Account;
-import models.User;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.math.BigDecimal;
 
+import java.sql.*;
+import java.math.BigDecimal;
 import utils.DatabaseConnection;
-import models.CheckingAccount;
-import models.SavingAccount;
-public class AccountController{
-    public AccountController(){}
-    public int CurrentUserId = User.getCurrentUser();
-    public boolean createAccount(String accountCode, String accountType, double initialBalance, double extraParam) {
-       if (!User.isLoggedIn()) {
-            System.out.println("Please log in first.");
+import models.User;
+
+public class AccountController {
+
+    public AccountController() {}
+
+    public boolean createCheckingAccount(String accountCode, double initialBalance, double negativeLimit) {
+        if (!User.isLoggedIn()) {
+            System.out.println("Error: Please log in first.");
             return false;
         }
 
-        String sql = "INSERT INTO accounts (account_code, owner_id, balance, account_type, negative_limit, interest_rate) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO accounts (account_code, owner_id, balance, account_type, negative_limit, interest_rate) VALUES (?, ?, ?, 'CHECKING', ?, NULL)";
 
         try {
             Connection conn = DatabaseConnection.getConnection();
@@ -28,35 +23,55 @@ public class AccountController{
 
             stmt.setString(1, accountCode);
             stmt.setInt(2, User.getCurrentUser());
-            stmt.setDouble(3, initialBalance);
-            stmt.setString(4, accountType);
-
-            if (accountType.equalsIgnoreCase("CHECKING")) {
-                stmt.setDouble(5, extraParam); // negative_limit
-                stmt.setNull(6, Types.DOUBLE); // No interest rate
-            } else if (accountType.equalsIgnoreCase("SAVING")) {
-                stmt.setNull(5, Types.DOUBLE); // No negative limit
-                stmt.setDouble(6, extraParam); // interest_rate
-            } else {
-                System.out.println("Invalid account type. Use CHECKING or SAVING.");
-                conn.close();
-                return false;
-            }
+            stmt.setBigDecimal(3, BigDecimal.valueOf(initialBalance));
+            stmt.setBigDecimal(4, BigDecimal.valueOf(negativeLimit));
 
             int rows = stmt.executeUpdate();
             conn.close();
 
             if (rows > 0) {
-                System.out.println("Created " + accountType + " account: " + accountCode);
+                System.out.println("Created CHECKING account: " + accountCode);
                 return true;
             } else {
-                System.out.println("Could not create account.");
+                System.out.println("Error: Could not create checking account.");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println("Database problem: " + e.getMessage());
+            System.out.println("Error: Database issue - " + e.getMessage());
             return false;
         }
     }
 
+    public boolean createSavingAccount(String accountCode, double initialBalance, double interestRate) {
+        if (!User.isLoggedIn()) {
+            System.out.println("Error: Please log in first.");
+            return false;
+        }
+
+        String sql = "INSERT INTO accounts (account_code, owner_id, balance, account_type, negative_limit, interest_rate) VALUES (?, ?, ?, 'SAVING', NULL, ?)";
+
+        try {
+            Connection conn = DatabaseConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+
+            stmt.setString(1, accountCode);
+            stmt.setInt(2, User.getCurrentUser());
+            stmt.setBigDecimal(3, BigDecimal.valueOf(initialBalance));
+            stmt.setBigDecimal(4, BigDecimal.valueOf(interestRate));
+
+            int rows = stmt.executeUpdate();
+            conn.close();
+
+            if (rows > 0) {
+                System.out.println("Created SAVING account: " + accountCode);
+                return true;
+            } else {
+                System.out.println("Error: Could not create saving account.");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: Database issue - " + e.getMessage());
+            return false;
+        }
+    }
 }
