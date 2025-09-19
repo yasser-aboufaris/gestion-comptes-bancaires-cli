@@ -1,5 +1,4 @@
 package models;
-
 import abstracts.Account;
 
 public class SavingAccount extends Account {

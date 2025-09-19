@@ -1,21 +1,25 @@
 package models;
-
 import abstracts.Account;
-
 public class CheckingAccount extends Account {
+    private double negativeLimit = 900.0; // Default negative limit
 
-    private int negativeLimite;
-    public CheckingAccount(String accountCode, int ownerId, double balance, double interestRate) {
-        super(accountCode, ownerId, balance); // call parent constructor
+    public CheckingAccount(String accountCode, int ownerId, double balance) {
+        super(accountCode, ownerId, balance);
     }
 
+    public double getNegativeLimit() {
+        return negativeLimit;
+    }
 
+    // Possibly a duplicate getNegativeLimit() causing the error
+    // public double getNegativeLimit() { ... }
 
+    @Override
     public void showDetails() {
-        System.out.println("=== Saving Account ===");
+        System.out.println("=== Checking Account ===");
         System.out.println("Account Code: " + getAccountCode());
         System.out.println("Owner ID: " + getOwnerId());
-        System.out.println("Balance: " + getBalance());
-        System.out.println("Interest Rate: " + interestRate + "%");
+        System.out.println("Balance: $" + getBalance());
+        System.out.println("Negative Limit: $" + negativeLimit);
     }
 }
