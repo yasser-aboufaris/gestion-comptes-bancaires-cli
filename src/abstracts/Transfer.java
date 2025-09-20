@@ -1,23 +1,28 @@
 package abstracts;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+
 public abstract class Transfer {
     protected String accountCode;
-    protected int amount;
+    protected BigDecimal amount;
+    protected Timestamp transaction_time;
 
-    protected Transfer(int amount, String accountCode) {
+    protected Transfer(BigDecimal amount, String accountCode, Timestamp transaction_time) {
         this.amount = amount;
         this.accountCode = accountCode;
-    }
-
-    protected void generateCode() {
-    
+        this.transaction_time = transaction_time;
     }
 
     public String getAccountCode() {
         return accountCode;
     }
 
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
+    }
+
+    public Timestamp getTransactionTime() {
+        return transaction_time;
     }
 }
