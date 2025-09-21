@@ -2,10 +2,14 @@ package main;
 
 import controllers.UserController;
 import controllers.AccountController;
+import controllers.TransferController;
 import abstracts.Account;
 import java.util.Scanner;
 import java.util.List;
 import models.User;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+
 public class Main {
     public static void main(String[] args) {
         // Step 1: Set up scanner for user input
@@ -14,6 +18,7 @@ public class Main {
         // Step 2: Create controllers
         UserController userController = new UserController();
         AccountController accountController = new AccountController();
+        TransferController transferController = new TransferController();
 
         // Step 3: Authentication menu loop (signup, login, exit)
         boolean loggedIn = false;
@@ -24,7 +29,6 @@ public class Main {
             System.out.println("3 = Exit");
             System.out.print("Choose action (1-3): ");
 
-            // Get user choice
             int choice = 0;
             boolean validInput = false;
             while (!validInput) {
@@ -73,14 +77,15 @@ public class Main {
             }
         }
 
-        // Step 4: Account menu loop (create accounts, list accounts, logout)
+        // Step 4: Account menu loop (create accounts, list accounts, make transaction, logout)
         while (loggedIn) {
             System.out.println("\n=== Account Menu ===");
             System.out.println("1 = Create Checking Account");
             System.out.println("2 = Create Saving Account");
             System.out.println("3 = List Accounts");
-            System.out.println("4 = Logout");
-            System.out.print("Choose action (1-4): ");
+            System.out.println("4 = Make Transaction");
+            System.out.println("5 = Logout");
+            System.out.print("Choose action (1-5): ");
 
             // Get user choice
             int choice = 0;
@@ -88,18 +93,18 @@ public class Main {
             while (!validInput) {
                 try {
                     choice = Integer.parseInt(scanner.nextLine());
-                    if (choice >= 1 && choice <= 4) {
+                    if (choice >= 1 && choice <= 5) {
                         validInput = true;
                     } else {
-                        System.out.print("Invalid choice. Please enter 1, 2, 3, or 4: ");
+                        System.out.print("Invalid choice. Please enter 1, 2, 3, 4, or 5: ");
                     }
                 } catch (NumberFormatException e) {
-                    System.out.print("Invalid input. Please enter a number (1-4): ");
+                    System.out.print("Invalid input. Please enter a number (1-5): ");
                 }
             }
 
             // Handle logout
-            if (choice == 4) {
+            if (choice == 5) {
                 User.setCurrentUser(0);
                 System.out.println("Logout successful.");
                 loggedIn = false;
@@ -109,12 +114,12 @@ public class Main {
             // Handle create checking account
             if (choice == 1) {
                 System.out.print("Enter starting balance (e.g., 1000): ");
-                double balance = 0;
+                BigDecimal balance = null;
                 validInput = false;
                 while (!validInput) {
                     try {
-                        balance = Double.parseDouble(scanner.nextLine());
-                        if (balance >= 0) {
+                        balance = new BigDecimal(scanner.nextLine());
+                        if (balance.compareTo(BigDecimal.ZERO) >= 0) {
                             validInput = true;
                         } else {
                             System.out.print("Balance must be 0 or more: ");
@@ -124,12 +129,12 @@ public class Main {
                     }
                 }
                 System.out.print("Enter negative limit (e.g., 900): ");
-                double negativeLimit = 0;
+                BigDecimal negativeLimit = null;
                 validInput = false;
                 while (!validInput) {
                     try {
-                        negativeLimit = Double.parseDouble(scanner.nextLine());
-                        if (negativeLimit >= 0) {
+                        negativeLimit = new BigDecimal(scanner.nextLine());
+                        if (negativeLimit.compareTo(BigDecimal.ZERO) >= 0) {
                             validInput = true;
                         } else {
                             System.out.print("Negative limit must be 0 or more: ");
@@ -144,15 +149,14 @@ public class Main {
                     System.out.println("Failed to create checking account.");
                 }
             }
-            // Handle create saving account
             else if (choice == 2) {
                 System.out.print("Enter starting balance (e.g., 1000): ");
-                double balance = 0;
+                BigDecimal balance = null;
                 validInput = false;
                 while (!validInput) {
                     try {
-                        balance = Double.parseDouble(scanner.nextLine());
-                        if (balance >= 0) {
+                        balance = new BigDecimal(scanner.nextLine());
+                        if (balance.compareTo(BigDecimal.ZERO) >= 0) {
                             validInput = true;
                         } else {
                             System.out.print("Balance must be 0 or more: ");
@@ -182,9 +186,8 @@ public class Main {
                     System.out.println("Failed to create saving account.");
                 }
             }
-            // Handle list accounts
             else if (choice == 3) {
-                List<Account> accounts = accountController.getUserAccounts(User.getCurrentUser());
+                List<Account> accounts = accountController.getUserAccounts();
                 if (accounts.isEmpty()) {
                     System.out.println("No accounts found.");
                 } else {
@@ -194,9 +197,95 @@ public class Main {
                     }
                 }
             }
+            else if (choice == 4) {
+                boolean inTransactionMenu = true;
+                while (inTransactionMenu) {
+                    System.out.println("\n=== Transaction Menu ===");
+                    System.out.println("1 = Withdrawal");
+                    System.out.println("2 = Deposit");
+                    System.out.println("3 = Transfer");
+                    System.out.println("4 = Exit");
+                    System.out.print("Choose action (1-4): ");
+
+                    int tChoice = 0;
+                    boolean validTInput = false;
+                    while (!validTInput) {
+                        try {
+                            tChoice = Integer.parseInt(scanner.nextLine());
+                            if (tChoice >= 1 && tChoice <= 4) {
+                                validTInput = true;
+                            } else {
+                                System.out.print("Invalid choice. Please enter 1, 2, 3, or 4: ");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.print("Invalid input. Please enter a number (1-4): ");
+                        }
+                    }
+
+                    if (tChoice == 4) {
+                        System.out.println("Exiting transaction menu.");
+                        inTransactionMenu = false;
+                        continue;
+                    }
+
+                    System.out.print("Enter account code: ");
+                    String accountCode = scanner.nextLine();
+
+                    System.out.print("Enter amount: ");
+                    BigDecimal amount = null;
+                    validTInput = false;
+                    while (!validTInput) {
+                        try {
+                            amount = new BigDecimal(scanner.nextLine());
+                            if (amount.compareTo(BigDecimal.ZERO) > 0) {
+                                validTInput = true;
+                            } else {
+                                System.out.print("Amount must be greater than 0: ");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.print("Invalid input. Please enter a valid number: ");
+                        }
+                    }
+
+                    Timestamp transaction_time = new Timestamp(System.currentTimeMillis());
+
+                    if (tChoice == 1) {
+                        // ✅ Ownership check for withdrawal
+                        if (!accountController.isOwner(accountCode)) {
+                            System.out.println("Error: You do not own this account.");
+                            continue;
+                        }
+                        if (transferController.withdrawal(accountCode, amount, transaction_time)) {
+                            System.out.println("Withdrawal successful!");
+                        } else {
+                            System.out.println("Withdrawal failed.");
+                        }
+                    } else if (tChoice == 2) {
+                        // ✅ Ownership check for deposit
+                        if (!accountController.isOwner(accountCode)) {
+                            System.out.println("Error: You do not own this account.");
+                            continue;
+                        }
+                        if (transferController.deposit(accountCode, amount, transaction_time)) {
+                            System.out.println("Deposit successful!");
+                        } else {
+                            System.out.println("Deposit failed.");
+                        }
+                    } else if (tChoice == 3) {
+                        System.out.print("Enter destination account code: ");
+                        String destAccount = scanner.nextLine();
+                        if (transferController.transfer(accountCode, destAccount, amount, transaction_time)) {
+                            System.out.println("Transfer successful!");
+                        } else {
+                            System.out.println("Transfer failed.");
+                        }
+                    }
+                }
+            }
+
+
         }
 
-        // Step 5: Close scanner
         scanner.close();
     }
 }

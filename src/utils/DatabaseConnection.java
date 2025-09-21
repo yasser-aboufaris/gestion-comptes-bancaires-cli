@@ -12,7 +12,6 @@ public class DatabaseConnection {
 
     public static Connection getConnection() throws SQLException {
         try {
-            // PostgreSQL driver
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             throw new SQLException("PostgreSQL JDBC Driver not found!", e);

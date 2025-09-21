@@ -1,18 +1,23 @@
 package models;
 import abstracts.Account;
-public class CheckingAccount extends Account {
-    private double negativeLimit = 900.0; // Default negative limit
 
-    public CheckingAccount(String accountCode, int ownerId, double balance) {
+import java.math.BigDecimal;
+
+public class CheckingAccount extends Account {
+    private BigDecimal negativeLimit = new BigDecimal("900.0");
+
+    public CheckingAccount(String accountCode, int ownerId, BigDecimal balance) {
         super(accountCode, ownerId, balance);
     }
 
-    public double getNegativeLimit() {
+    public BigDecimal getNegativeLimit() {
         return negativeLimit;
     }
 
-    // Possibly a duplicate getNegativeLimit() causing the error
-    // public double getNegativeLimit() { ... }
+    public void setNegativeLimit(BigDecimal negativeLimit) {
+        this.negativeLimit = negativeLimit;
+    }
+
 
     @Override
     public void showDetails() {

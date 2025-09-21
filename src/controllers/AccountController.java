@@ -155,7 +155,7 @@ public class AccountController {
         }
     }
     public boolean isOwner(String accountCode) {
-        String sql = "SELECT COUNT(*) FROM Accounts WHERE account_code = ? AND user_id = ?";
+        String sql = "SELECT COUNT(*) FROM Accounts WHERE account_code = ? AND owner_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
