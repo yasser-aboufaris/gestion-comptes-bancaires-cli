@@ -14,7 +14,7 @@ public class AccountController {
 
     public AccountController() {}
 
-    public boolean createCheckingAccount(double initialBalance, double negativeLimit) {
+    public boolean createCheckingAccount(BigDecimal initialBalance, BigDecimal negativeLimit) {
         if (!User.isLoggedIn()) {
             System.out.println("Error: Please log in first.");
             return false;
@@ -27,19 +27,18 @@ public class AccountController {
             return false;
         }
 
-        String sql = "INSERT INTO accounts (account_code, owner_id, balance, account_type, negative_limit, interest_rate) VALUES (?, ?, ?, 'CHECKING', ?, NULL)";
+        String sql = "INSERT INTO accounts (account_code, owner_id, balance, account_type, negative_limit, interest_rate) " +
+                "VALUES (?, ?, ?, 'CHECKING', ?, NULL)";
 
-        try {
-            Connection conn = DatabaseConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, accountCode);
             stmt.setInt(2, User.getCurrentUser());
-            stmt.setBigDecimal(3, BigDecimal.valueOf(initialBalance));
-            stmt.setBigDecimal(4, BigDecimal.valueOf(negativeLimit));
+            stmt.setBigDecimal(3, initialBalance);
+            stmt.setBigDecimal(4, negativeLimit);
 
             int rows = stmt.executeUpdate();
-            conn.close();
 
             if (rows > 0) {
                 System.out.println("Created CHECKING account: " + accountCode);
@@ -54,7 +53,8 @@ public class AccountController {
         }
     }
 
-    public boolean createSavingAccount(double initialBalance, double interestRate) {
+
+    public boolean createSavingAccount(BigDecimal initialBalance, double interestRate) {
         if (!User.isLoggedIn()) {
             System.out.println("Error: Please log in first.");
             return false;
@@ -74,8 +74,7 @@ public class AccountController {
 
             stmt.setString(1, accountCode);
             stmt.setInt(2, User.getCurrentUser());
-            stmt.setBigDecimal(3, BigDecimal.valueOf(initialBalance));
-            stmt.setBigDecimal(4, BigDecimal.valueOf(interestRate));
+            stmt.setBigDecimal(3, initialBalance);stmt.setBigDecimal(4, BigDecimal.valueOf(interestRate));
 
             int rows = stmt.executeUpdate();
             conn.close();
@@ -93,31 +92,30 @@ public class AccountController {
         }
     }
 
-    public List<Account> getUserAccounts(int userId) {
-        if (!User.isLoggedIn() || userId != User.getCurrentUser()) {
+    public List<Account> getUserAccounts(){
+        if (!User.isLoggedIn()) {
             System.out.println("Error: Please log in.");
             return new ArrayList<>();
         }
 
         List<Account> accounts = new ArrayList<>();
-
         String sql = "SELECT account_code, owner_id, balance, account_type FROM accounts WHERE owner_id = ?";
 
         try {
             Connection conn = DatabaseConnection.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, userId);
+            stmt.setInt(1, User.getCurrentUser());
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
                 String accountCode = rs.getString("account_code");
                 int ownerId = rs.getInt("owner_id");
-                double balance = rs.getDouble("balance");
+                BigDecimal balance = rs.getBigDecimal("balance");
                 String accountType = rs.getString("account_type");
 
                 if (accountType.equalsIgnoreCase("CHECKING")) {
                     accounts.add(new CheckingAccount(accountCode, ownerId, balance));
-                } else if (accountType.equalsIgnoreCase("SAVING")) {
+         } else if (accountType.equalsIgnoreCase("SAVING")) {
                     accounts.add(new SavingAccount(accountCode, ownerId, balance, 0.0));
                 }
             }
@@ -156,4 +154,27 @@ public class AccountController {
             return null;
         }
     }
+    public boolean isOwner(String accountCode) {
+        String sql = "SELECT COUNT(*) FROM Accounts WHERE account_code = ? AND user_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, accountCode);
+            stmt.setInt(2, User.getCurrentUser());  // static call to current user id
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // true if a row exists
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+
+
+
 }
