@@ -35,6 +35,8 @@
   ✨ <em>A modern Java 8 console banking app with multilingual documentation, clean architecture, and professional design.</em> ✨
 </p>
 
+---
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Platane/snk/output/github-contribution-grid-snake.svg" alt="snake animation" />
+  🏦 <strong>Secure your accounts, track your money, and manage your own digital bank — all from the console.</strong>  
 </p>
