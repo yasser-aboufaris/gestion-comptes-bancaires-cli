@@ -204,30 +204,38 @@ public class Main {
                     System.out.println("1 = Withdrawal");
                     System.out.println("2 = Deposit");
                     System.out.println("3 = Transfer");
-                    System.out.println("4 = Exit");
-                    System.out.print("Choose action (1-4): ");
+                    System.out.println("4 = List All Transactions");
+                    System.out.println("5 = Exit");
+                    System.out.print("Choose action (1-5): ");
 
                     int tChoice = 0;
                     boolean validTInput = false;
                     while (!validTInput) {
                         try {
                             tChoice = Integer.parseInt(scanner.nextLine());
-                            if (tChoice >= 1 && tChoice <= 4) {
+                            if (tChoice >= 1 && tChoice <= 5) {
                                 validTInput = true;
                             } else {
-                                System.out.print("Invalid choice. Please enter 1, 2, 3, or 4: ");
+                                System.out.print("Invalid choice. Please enter 1, 2, 3, 4, or 5: ");
                             }
                         } catch (NumberFormatException e) {
-                            System.out.print("Invalid input. Please enter a number (1-4): ");
+                            System.out.print("Invalid input. Please enter a number (1-5): ");
                         }
                     }
 
-                    if (tChoice == 4) {
+                    if (tChoice == 5) {
                         System.out.println("Exiting transaction menu.");
                         inTransactionMenu = false;
                         continue;
                     }
 
+                    if (tChoice == 4) {
+                        // ✅ Show all deposits + withdrawals
+                        transferController.showAllTransactions();
+                        continue;
+                    }
+
+                    // For Withdrawal, Deposit, Transfer → need account + amount
                     System.out.print("Enter account code: ");
                     String accountCode = scanner.nextLine();
 
@@ -250,7 +258,6 @@ public class Main {
                     Timestamp transaction_time = new Timestamp(System.currentTimeMillis());
 
                     if (tChoice == 1) {
-                        // ✅ Ownership check for withdrawal
                         if (!accountController.isOwner(accountCode)) {
                             System.out.println("Error: You do not own this account.");
                             continue;
@@ -261,7 +268,6 @@ public class Main {
                             System.out.println("Withdrawal failed.");
                         }
                     } else if (tChoice == 2) {
-                        // ✅ Ownership check for deposit
                         if (!accountController.isOwner(accountCode)) {
                             System.out.println("Error: You do not own this account.");
                             continue;
@@ -282,6 +288,7 @@ public class Main {
                     }
                 }
             }
+
 
 
         }
